@@ -1,0 +1,67 @@
+--영상테이블
+create table video
+(vnum number number(22) primary key,
+vtitle varchar2(200),
+category varchar2(10),
+vlink varchar2(500),
+ilink varchar2(50),
+wdate date,
+hitCount number(22) not null);
+
+--회원테이블
+create table custom
+(id varchar2(15) primary key,
+pwd varchar2(15) not null,
+name varchar2(20) not null,
+email varchar2(30) not null,
+rank varchar2(30) not null);
+
+--후기게시판테이블
+create table review
+(re_num number(7) primary key,
+re_id varchar2(15) not null,
+category varchar2(15),
+subject varchar2(20),
+content varchar2(4000),
+hitCount number,
+cdate date,
+fileName varchar2(50),
+foreign key(re_id) references custom(id) on delete cascade)
+
+--댓글테이블
+create table datgle
+(dat_renum number(7), foreign key(dat_renum) references review(re_num) on delete cascade,
+dat_num number(7) primary key,
+dat_id varchar2(15) not null, foreign key(dat_id) references custom(id) on delete cascade,
+content varchar2(700))
+
+--찜 테이블
+create table record
+(id varchar2(15),
+vnum number(22),
+vtitle varchar2(200),
+ilink varchar2(50),
+wdate date);
+
+ALTER TABLE VIDEO
+ADD CONSTRAINT VIDEO_ILINK_UK UNIQUE(ILINK);
+
+ALTER TABLE VIDEO
+MODIFY ILINK CONSTRAINT VIDEO_ILINK_NN NOT NULL; 
+
+ALTER TABLE record
+ADD CONSTRAINT record_id_fk FOREIGN KEY(id) REFERENCES custom(id) ON DELETE CASCADE;
+
+ALTER TABLE record
+ADD CONSTRAINT record_vnum_fk FOREIGN KEY(vnum) REFERENCES video(vnum) ON DELETE CASCADE;
+
+- 제약조건 확인
+select 	B.*,
+	A.CONSTRAINT_TYPE || 'K',
+	A.SEARCH_CONDITION
+from 	USER_CONSTRAINTS  A,
+	USER_CONS_COLUMNS B 
+where 	A.OWNER = B.OWNER
+AND 	A.CONSTRAINT_NAME = B.CONSTRAINT_NAME
+AND 	A.TABLE_NAME = B.TABLE_NAME
+AND 	B.TABLE_NAME LIKE '%' || UPPER('DATGLE') || '%';
